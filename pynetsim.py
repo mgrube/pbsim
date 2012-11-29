@@ -97,7 +97,7 @@ def locationswap(graph, node1, node2):
 
 def pickmalnode(graph):
     node = random.choice(graph.nodes(data=True))
-    bias = round(node[0][0], 2)
+    bias = round(node[0][0], 4)
     return (node[1]['id'], bias)
 
 def pbswap(graph, maltuple, attackers):
