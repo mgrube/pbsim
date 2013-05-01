@@ -4,6 +4,8 @@ import networkx
 from DataStore import DataStore
 from FNode import FNode
 
+#This function takes a graph, a set of attackers as tuples and a 
+#distance each node should be away from the others. 
 def sandbergsolution(graph, attackers, distance):
     i = 0
     while i < 2000:
@@ -14,12 +16,17 @@ def sandbergsolution(graph, attackers, distance):
         attackers = newattackers
         i += 1
 
+#This inserts one object of size 1000 into each node in the network's 
+#datastore. The use for this is to fill the network with data, which
+#would amplify the effects of the pitch black attack
 def networkdatainsert(g):
 	for n in g.nodes(data=True):
 		randloc = float(random.randint(2000, 10000))/1000000000
 		keyloc = round(n[0][0], 3) + randloc
 		n[1]['ds'].insert(keyloc, 1000)
 
+#This function is for inserting a standard, default amount of
+#niformation into the datastores on the network.
 def initialdatainsert(g):
 	for n in g.nodes(data=True):
 		approxloc = round(n[0][0], 3)
@@ -29,6 +36,8 @@ def initialdatainsert(g):
 			n[1]['ds'].insert(approxloc, 250)
 			i += 1
 
+#This function takes a graph to attack and a list of nodes who are attackers
+#and carries out the Pitch Black attack.
 def attacksimulation(graph, attackers):
     i = 0
     while i < 2000:
@@ -39,7 +48,7 @@ def attacksimulation(graph, attackers):
         attackers = newattackers
         i += 1
 
-
+#Changes a node's location in the graph by the Node ID it is given.
 #Newloc must be in tuple format
 def changenodeloc(graph, nodeid, newloc):
     node = getbyID(graph, nodeid)
@@ -49,6 +58,8 @@ def changenodeloc(graph, nodeid, newloc):
         graph.add_edge(newloc, n)
     graph.remove_node(node[0])
 
+#Takes one node and replaces it with another, while mainatining
+#all connections. This does not use node ID, but rather location.
 def replacenode(graph, node, newnode):
     nodedict = dict()
     for n in graph.nodes(data=True):
@@ -63,7 +74,7 @@ def replacenode(graph, node, newnode):
     #print "Replace - Node removed: " + str(node)
 
 
-
+#Swaps the location of two nodes based on location.
 def locationswap(graph, node1, node2):
     neighbors1 = graph.neighbors(node1)
     neighbors2 = graph.neighbors(node2)
@@ -95,11 +106,18 @@ def locationswap(graph, node1, node2):
         else:
             graph.add_edge(node2, n)
 
+#Select some node in the network to be malicious
 def pickmalnode(graph):
     node = random.choice(graph.nodes(data=True))
     bias = round(node[0][0], 4)
     return (node[1]['id'], bias)
 
+#This is the malicious swap described by the Pitch Black paper
+#The malicious node changes its own location to a set bias
+#after swapping with a good node, replacing that good location with
+#its own bias to swap during the next iteration. This is what
+#causes the location clustering that prevents the network from
+#storing a significant portion of the keyspace.
 def pbswap(graph, maltuple, attackers):
     bias = round(float(maltuple[1]) + .0000000001, 10)
     print 'Bias: ' + str(bias)
@@ -114,6 +132,7 @@ def pbswap(graph, maltuple, attackers):
     locationswap(graph, getbyID(graph, malid)[0], neighbor)
     return (malid, bias)
 
+#Returns a node by its NodeID
 def getbyID(graph, nodeid):
     node = None
     for n in graph.nodes(data=True):
@@ -121,6 +140,7 @@ def getbyID(graph, nodeid):
             node = n
     return node
 
+#Returns a node by its location
 def getbyLoc(graph, location):
     node = None
     for n in graph.nodes(data=True):
@@ -128,6 +148,7 @@ def getbyLoc(graph, location):
             node = n
     return node
 
+#Assign random locations throughout the whole graph
 def randomize(graph):
     i = 0
     for n in graph.nodes():
@@ -140,7 +161,8 @@ def randomize(graph):
             graph.add_edge(newnode, neighbor)
         graph.remove_node(n)
 
-
+#This is important. This is Oskar Sandberg's original swapping calculation.
+#This needs to be run 2000N times to be effective.
 def swap_calc(graph, node1, node2):
     d1 = float()
     d2 = float()
@@ -180,6 +202,7 @@ def swap_calc(graph, node1, node2):
             #print "Did probabilistic swap."
             locationswap(graph, node1, node2)
 
+#Assign a set of malicious nodes
 def pickmalnodes(graph, attackers, numattackers):
 	i = 0
 	while i < numattackers:
@@ -189,7 +212,7 @@ def pickmalnodes(graph, attackers, numattackers):
         	attackers.append((maltuple[0], round((maltuple[1] + .25) % 1, 3)))
         	attackers.append((maltuple[0], round((maltuple[1] + .75) % 1, 3)))
 		i += 1
-
+#Defensively swaps the whole graph
 def defensiveswapiteration(g, attackers, distance):
     for n in g.nodes(data=True):
         node1 = n
@@ -205,6 +228,7 @@ def defensiveswapiteration(g, attackers, distance):
                 changenodeloc(g, node1[1]['id'], newloc)
                 print "Replaced " + str(n) + " with " + str(newloc)
 
+#Use Sandberg's Swapping algorithm once for the whole graph
 def swapiteration(g):
     for n in g.nodes():
         node1 = n
@@ -212,7 +236,7 @@ def swapiteration(g):
         swap_calc(g, node1, node2)
     print "Swap iteration complete."
 
-
+#Use a swapping technique that takes pitch black into account
 def defensiveswapcalc(graph, node, attackers, dist):
     if node not in attackers:
         randomloc = float(random.randint(0, 999999999))/1000000000
@@ -224,7 +248,8 @@ def defensiveswapcalc(graph, node, attackers, dist):
             return randnode
         else:
             return None
-    
+
+#Return the closest node relative to a specific location
 def closestnodequery(graph, startnode, desired):
     HTL = int(math.ceil(math.pow(math.log(len(graph.nodes()), 10), 2)))
     visitednodes = list()
@@ -244,6 +269,9 @@ def closestnodequery(graph, startnode, desired):
             closestnode = n
     return closestnode
 
+#Return the closest neighor relative to a certain location.
+#The previous node is passed to ensure that a node is not 
+#Returned twice when crawling. 
 def closestneighbor(graph, currentnode, desired, previous):
     neighbors = graph.neighbors(currentnode)
     distances = list()
@@ -254,5 +282,6 @@ def closestneighbor(graph, currentnode, desired, previous):
     mindistance = min(distances)
     return neighbors[distances.index(mindistance)]
 
+#Simple distance function
 def distance(node1, node2):
     return abs(node1[0] - node2[0])
