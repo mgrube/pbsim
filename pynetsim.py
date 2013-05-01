@@ -2,7 +2,6 @@ import random
 import math
 import networkx        
 from DataStore import DataStore
-from FNode import FNode
 
 #This function takes a graph, a set of attackers as tuples and a 
 #distance each node should be away from the others. 
