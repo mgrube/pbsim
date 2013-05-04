@@ -1,6 +1,7 @@
 import random
 import math
-import networkx        
+import networkx
+import numpy
 from DataStore import DataStore
 
 #This function takes a graph, a set of attackers as tuples and a 
@@ -207,9 +208,9 @@ def pickmalnodes(graph, attackers, numattackers):
 	while i < numattackers:
         	maltuple = pickmalnode(graph)
         	attackers.append((maltuple[0], maltuple[1]))
-        	attackers.append((maltuple[0], round((maltuple[1] + .5) % 1, 3)))
-        	attackers.append((maltuple[0], round((maltuple[1] + .25) % 1, 3)))
-        	attackers.append((maltuple[0], round((maltuple[1] + .75) % 1, 3)))
+        	attackers.append((maltuple[0], round((maltuple[1] + .5) % 1, 5)))
+        	attackers.append((maltuple[0], round((maltuple[1] + .25) % 1, 5)))
+        	attackers.append((maltuple[0], round((maltuple[1] + .75) % 1, 5)))
 		i += 1
 #Defensively swaps the whole graph
 def defensiveswapiteration(g, attackers, distance):
@@ -243,7 +244,10 @@ def defensiveswapcalc(graph, node, attackers, dist):
         closestnode = closestnodequery(graph, node, randnode)
         print "Randomly chosen location: " + str(randnode)
         print "Closest found node: " + str(closestnode)
-        if distance(randnode, closestnode) >= dist:
+        neighborlocations = list()
+        for n in graph.neighbors(node):
+            neighborlocations.append(n[0])
+        if distance(randnode, closestnode)*dist >= numpy.mean(neighborlocations):
             return randnode
         else:
             return None
