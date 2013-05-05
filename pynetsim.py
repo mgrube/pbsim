@@ -247,7 +247,7 @@ def defensiveswapcalc(graph, node, attackers, dist):
         neighborlocations = list()
         for n in graph.neighbors(node):
             neighborlocations.append(n[0])
-        if distance(randnode, closestnode)*dist >= numpy.mean(neighborlocations):
+        if abs(distance(randnode, closestnode)-numpy.mean(neighborlocations)) >= dist:
             return randnode
         else:
             return None
@@ -287,4 +287,6 @@ def closestneighbor(graph, currentnode, desired, previous):
 
 #Simple distance function
 def distance(node1, node2):
-    return abs(node1[0] - node2[0])
+    dist1 = abs(node1[0] - node2[0])
+    dist2 = (node1[0] + node2[0])%1
+    return min(dist1, dist2)
