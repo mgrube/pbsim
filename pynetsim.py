@@ -58,6 +58,19 @@ def changenodeloc(graph, nodeid, newloc):
         graph.add_edge(newloc, n)
     graph.remove_node(node[0])
 
+#Returns the location of a node after htl number of random hops from the originator
+def randomwalk(originator, htl, graph):
+	path = list()
+	htl = 6
+	current = originator
+	while htl > 0:
+		current = random.choice(graph.neighbors(current))
+		htl -= 1
+	if current == originator:
+		return randomwalk(originator, htl, graph)
+	else:
+		return current
+
 #Takes one node and replaces it with another, while mainatining
 #all connections. This does not use node ID, but rather location.
 def replacenode(graph, node, newnode):
@@ -232,7 +245,7 @@ def defensiveswapiteration(g, attackers, distance):
 def swapiteration(g):
     for n in g.nodes():
         node1 = n
-        node2 = random.choice(g.neighbors(n))
+        node2 = randomwalk(n, 6, g)
         swap_calc(g, node1, node2)
     print "Swap iteration complete."
 
