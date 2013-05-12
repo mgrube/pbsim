@@ -138,11 +138,11 @@ def pbswap(graph, maltuple, attackers):
     print 'Malicious Node ID: ' + str(malid)
     print 'Maltuple:' + str(maltuple)
     changenodeloc(graph, malid, (bias,))
-    neighbor = random.choice(graph.neighbors(getbyID(graph, malid)[0]))
+    victim = randomwalk(getbyID(graph, malid)[0], 6, graph)
     for a in attackers:
-        while a[0] == neighbor:
-            neighbor = random.choice(graph.neighbors(getbyID(graph, malid)[0]))
-    locationswap(graph, getbyID(graph, malid)[0], neighbor)
+        while a[0] == victim:
+            neighbor = randomwalk(getbyID(graph, malid)[0], 6, graph)
+    locationswap(graph, getbyID(graph, malid)[0], victim)
     return (malid, bias)
 
 #Returns a node by its NodeID
@@ -259,7 +259,7 @@ def defensiveswapcalc(graph, node, attackers, dist):
         print "Closest found node: " + str(closestnode)
         neighborlocations = list()
         for n in graph.neighbors(node):
-            neighborlocations.append(distance(node, n[0]))
+            neighborlocations.append(distance(node, n))
         if abs(distance(randnode, closestnode)-numpy.mean(neighborlocations)) >= dist:
             return randnode
         else:
