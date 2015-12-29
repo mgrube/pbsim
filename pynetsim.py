@@ -227,10 +227,10 @@ def pickmalnodes(graph, attackers, numattackers):
 		i += 1
 #Defensively swaps the whole graph
 def defensiveswapiteration(g, attackers, distance):
-    for n in g.nodes():
+    for n in g.nodes(data=True):
         node1 = n
-        node2 = randomwalk(n, 6, g)
-        newloc = defensiveswapcalc(g, n, attackers, distance)
+        node2 = randomwalk(n[0], 6, g)
+        newloc = defensiveswapcalc(g, n[0], attackers, distance)
         if newloc == None:
             print "Didn't need to change. Doing Swap Calc."
             swap_calc(g, node1[0], node2)
