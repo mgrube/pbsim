@@ -257,10 +257,15 @@ def defensiveswapcalc(graph, node, attackers, dist):
         closestnode = closestnodequery(graph, node, randnode)
         print "Randomly chosen location: " + str(randnode)
         print "Closest found node: " + str(closestnode)
-        neighborlocations = list()
+        neighbordistances = list()
         for n in graph.neighbors(node):
-            neighborlocations.append(distance(node, n))
-        if abs(distance(randnode, closestnode)-numpy.mean(neighborlocations)) >= dist:
+            neighbordistances.append(distance(node, n))
+        _dist = abs(distance(randnode, closestnode) - numpy.mean(neighbordistances))
+        # if the difference between the mean distance to my neighbors
+        # and the closest found route to a random node is larger than dist,
+        # take the random location.
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
             return randnode
         else:
             return None
