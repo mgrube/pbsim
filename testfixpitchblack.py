@@ -8,6 +8,7 @@ Taken from thesnarks solution: https://emu.freenetproject.org/pipermail/devl/201
 from pynetsim import *
 from networkx import *
 from pylab import *
+small_world_network = navigable_small_world_graph(1000, 4, 2, 1, 1).to_undirected()
 random_network = navigable_small_world_graph(1000, 4, 2, 1, 1).to_undirected()
 
 randomize(random_network)
@@ -20,10 +21,18 @@ for i in range(2000):
     swapiteration(clean_swap_network)
 
 def showlinklength(net):
-    linklengths = list()
-    for e in net.edges():
-        linklengths.append(abs(e[0][0] - e[1][0]))
-    hist(linklengths, 100)
+    linklengths = [max([abs((e[0][0] - e[1][0])) for e in net.edges(n)]) for n in net.nodes()]
+    ll_smallworld = [max([abs(e[0][0] - e[1][0]) for e in small_world_network.edges(n)]) for n in small_world_network.nodes()]
+    ll_random = [max([abs(e[0][0] - e[1][0]) for e in random_network.edges(n)]) for n in random_network.nodes()]
+    # hist(linklengths, 100)
+    plot(sorted(linklengths), range(len(linklengths)), label="simulated")
+    plot(sorted(ll_smallworld), range(len(ll_smallworld)), label="kleinberg")
+    plot(sorted(ll_random), range(len(ll_random)), label="randomized")
+    yscale('log')
+    xscale('log')
+    ylabel('number of nodes with this link length or less')
+    xlabel('max link length of the node')
+    legend()
     show()
 
 showlinklength(clean_swap_network)
