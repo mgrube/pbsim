@@ -231,7 +231,7 @@ def defensiveswapiteration(g, attackers, distance):
         node1 = n
         node2 = randomwalk(n[0], 6, g)
         newloc = defensiveswapcalc(g, n[0], attackers, distance)
-        if newloc == None:
+        if newloc is None:
             print "Didn't need to change. Doing Swap Calc."
             swap_calc(g, node1[0], node2)
         else:
@@ -239,7 +239,7 @@ def defensiveswapiteration(g, attackers, distance):
                 print "Attack node will not defensively swap."
             else:
                 changenodeloc(g, node1[1]['id'], newloc)
-                print "Replaced " + str(n) + " with " + str(newloc)
+                print "Replaced " + str(n[0]) + " with " + str(newloc[0])
 
 #Use Sandberg's Swapping algorithm once for the whole graph
 def swapiteration(g):
