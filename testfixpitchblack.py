@@ -24,7 +24,7 @@ def showlinklength(net):
     linklengths = [max([abs((e[0][0] - e[1][0])) for e in net.edges(n)]) for n in net.nodes()]
     ll_smallworld = [max([abs(e[0][0] - e[1][0]) for e in small_world_network.edges(n)]) for n in small_world_network.nodes()]
     ll_random = [max([abs(e[0][0] - e[1][0]) for e in random_network.edges(n)]) for n in random_network.nodes()]
-    # hist(linklengths, 100)
+    # hist([abs(e[0][0] - e[1][0]) for e in net.edges()], 100)
     plot(sorted(linklengths), range(len(linklengths)), label="simulated")
     plot(sorted(ll_smallworld), range(len(ll_smallworld)), label="kleinberg")
     plot(sorted(ll_random), range(len(ll_random)), label="randomized")
