@@ -6,13 +6,15 @@ from DataStore import DataStore
 
 #This function takes a graph, a set of attackers as tuples and a 
 #distance each node should be away from the others. 
-def sandbergsolution(graph, attackers, distance):
+def sandbergsolution(graph, attackers, distance, swapcalcfun=None):
+    if swapcalcfun is None:
+        swapcalcfun = defensiveswapcalc
     i = 0
     while i < 2000:
         newattackers = list() 
         for a in attackers:
             newattackers.append(pbswap(graph, a, attackers))
-        defensiveswapiteration(graph, attackers, distance)
+        defensiveswapiteration(graph, attackers, distance, swapcalcfun)
         attackers = newattackers
         i += 1
 
@@ -226,11 +228,11 @@ def pickmalnodes(graph, attackers, numattackers):
         	attackers.append((maltuple[0], round((maltuple[1] + .75) % 1, 5)))
 		i += 1
 #Defensively swaps the whole graph
-def defensiveswapiteration(g, attackers, distance):
+def defensiveswapiteration(g, attackers, distance, swapcalcfun):
     for n in g.nodes(data=True):
         node1 = n
         node2 = randomwalk(n[0], 6, g)
-        newloc = defensiveswapcalc(g, n[0], attackers, distance)
+        newloc = swapcalcfun(g, n[0], attackers, distance)
         if newloc is None:
             print "Didn't need to change. Doing Swap Calc."
             swap_calc(g, node1[0], node2)
@@ -270,6 +272,51 @@ def defensiveswapcalc(graph, node, attackers, dist):
         else:
             return None
 
+
+#Use a swapping technique that takes pitch black into account
+def defensiveswapcalcabsminusmean(graph, node, attackers, dist):
+    if node not in attackers:
+        randomloc = float(random.randint(0, 999999999))/1000000000
+        randnode = (randomloc, )
+        closestnode = closestnodequery(graph, node, randnode)
+        print "Randomly chosen location: " + str(randnode)
+        print "Closest found node: " + str(closestnode)
+        neighbordistances = list()
+        for n in graph.neighbors(node):
+            neighbordistances.append(distance(node, n))
+        _dist = abs(distance(randnode, closestnode)) - numpy.mean(neighbordistances)
+        # if the difference between the mean distance to my neighbors
+        # and the closest found route to a random node is larger than dist,
+        # take the random location.
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
+            return randnode
+        else:
+            return None
+
+
+#Simpler swapping technique that takes pitch black into account
+def defensiveswapcalcmedian(graph, node, attackers, dist):
+    if node not in attackers:
+        randomloc = float(random.randint(0, 999999999))/1000000000
+        randnode = (randomloc, )
+        closestnode = closestnodequery(graph, node, randnode)
+        print "Randomly chosen location: " + str(randnode)
+        print "Closest found node: " + str(closestnode)
+        neighbordistances = list()
+        for n in graph.neighbors(node):
+            neighbordistances.append(distance(node, n))
+        _dist = abs(distance(randnode, closestnode)) - numpy.median(neighbordistances)
+        # if the difference between the mean distance to my neighbors
+        # and the closest found route to a random node is larger than dist,
+        # take the random location.
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
+            return randnode
+        else:
+            return None
+
+        
 #Return the closest node relative to a specific location
 def closestnodequery(graph, startnode, desired):
     HTL = int(math.ceil(math.pow(math.log(len(graph.nodes()), 10), 2)))
@@ -290,7 +337,7 @@ def closestnodequery(graph, startnode, desired):
             closestnode = n
     return closestnode
 
-#Return the closest neighor relative to a certain location.
+#Return the closest neighbor relative to a certain location.
 #The previous node is passed to ensure that a node is not 
 #Returned twice when crawling. 
 def closestneighbor(graph, currentnode, desired, previous):
