@@ -37,15 +37,20 @@ def trial(npeers, ntries):
       best = maybebetter
   return best
 
-npeers = 5
-samples_per_try = 100
-maxtries = 10000
+npeers = 6
+samples_per_try = 50
+maxtries = 100
 tries = []
 best_by_tries = []
+twostd_per_tries = {}
 for ntries in range(int(math.log(maxtries, 2))):
+    t = []
     for i in range(samples_per_try):
         tries.append(2**ntries)
-        best_by_tries.append(trial(npeers, int(2**ntries)))
+        t.append(trial(npeers, int(2**ntries)))
+    best_by_tries.extend(t)
+    twostd_per_tries[2**ntries] = pl.mean(t) + 2 * pl.std(t) 
 pl.plot(tries, best_by_tries, "+")
+pl.plot(twostd_per_tries.keys(), twostd_per_tries.values(), "o")
 pl.xscale('log')
 pl.show()
