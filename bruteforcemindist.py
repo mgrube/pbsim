@@ -6,6 +6,7 @@ This currently ignores that in a real network there will only be a fixed number 
 """
 
 import random
+import numpy as np
 import pylab as pl
 import math
 
@@ -14,12 +15,16 @@ def dist(loc1, loc2):
     dist2 = (loc1 + loc2)%1
     return min(dist1, dist2)
 
-def random_dist(npeers, target):
-  return min([dist(random.random(), target) for i in range(npeers)])
+def random_dist(npeers, target, nodes=None):
+    if nodes is None:
+        return min([dist(random.random(), target) for i in range(npeers)])
+    else:
+        
+        return min([dist(i, target) for i in np.random.choice(nodes, (npeers,))])
 
-def oneroute(npeers, target, HTL=10):
+def oneroute(npeers, target, HTL=10, nodes=None):
     best = random_dist(npeers, target)
-    maybebetter = random_dist(npeers, target)
+    maybebetter = random_dist(npeers, target, nodes=nodes)
     for i in range(HTL-1):
         if maybebetter > best:
            break
@@ -27,18 +32,20 @@ def oneroute(npeers, target, HTL=10):
         maybebetter = random_dist(npeers, target)
     return best
 
-def trial(npeers, ntries):
+def trial(npeers, ntries, nodes=None):
   target = random.random()
   best = oneroute(npeers, target)
-  maybebetter = oneroute(npeers, target)
+  maybebetter = oneroute(npeers, target, nodes=nodes)
   for i in range(ntries):
-    maybebetter = oneroute(npeers, target)
+    maybebetter = oneroute(npeers, target, nodes=nodes)
     if maybebetter < best:
       best = maybebetter
   return best
 
 npeers = 6
-samples_per_try = 50
+size = 100
+nodes = pl.random_sample(size)
+samples_per_try = 500
 maxtries = 100
 tries = []
 best_by_tries = []
@@ -47,7 +54,7 @@ for ntries in range(int(math.log(maxtries, 2))):
     t = []
     for i in range(samples_per_try):
         tries.append(2**ntries)
-        t.append(trial(npeers, int(2**ntries)))
+        t.append(trial(npeers, int(2**ntries), nodes=nodes))
     best_by_tries.extend(t)
     twostd_per_tries[2**ntries] = pl.mean(t) + 2 * pl.std(t) 
 pl.plot(tries, best_by_tries, "+")
