@@ -12,6 +12,9 @@ from DataStore import DataStore
 
 networksize = 1000
 
+#: mean plus two sigma probability of the distance to a random node when routing through a random network with 5 peers per node
+m2s = .037
+
 small_world_network = navigable_small_world_graph(networksize, 4, 2, 1, 1).to_undirected()
 
 # change the locations to be [0..1).
@@ -33,6 +36,7 @@ attacked_network = random_network.copy()
 sandberg_solution_network = random_network.copy()
 sandberg_solution_network_minus = random_network.copy()
 sandberg_solution_network_median = random_network.copy()
+sandberg_solution_network_median4 = random_network.copy()
 
 
 f, axes = subplots(3, 2, sharex=True, sharey=True)
@@ -72,17 +76,22 @@ showlinklength(attacked_network, ax)
 
 ax = axes[0, 1]
 ax.set_title("Attacked, sandberg abs(route - mean)")
-sandbergsolution(sandberg_solution_network, attackers, .037)
+sandbergsolution(sandberg_solution_network, attackers, m2s)
 showlinklength(sandberg_solution_network, ax)
 
 ax = axes[1, 1]
 ax.set_title("Attacked, sandberg abs(route) - mean")
-sandbergsolution(sandberg_solution_network_minus, attackers, .037, swapcalcfun=defensiveswapcalcabsminusmean)
+sandbergsolution(sandberg_solution_network_minus, attackers, m2s, swapcalcfun=defensiveswapcalcabsminusmean)
 showlinklength(sandberg_solution_network_minus, ax)
 
 ax = axes[2, 1]
+ax.set_title("Attacked, sandberg abs(route) - median4")
+sandbergsolution(sandberg_solution_network_median4, attackers, m2s, swapcalcfun=defensiveswapcalcmedian4)
+showlinklength(sandberg_solution_network_median4, ax)
+
+ax = axes[2, 0]
 ax.set_title("Attacked, sandberg abs(route) - median")
-sandbergsolution(sandberg_solution_network_median, attackers, .037, swapcalcfun=defensiveswapcalcmedian)
+sandbergsolution(sandberg_solution_network_median, attackers, m2s, swapcalcfun=defensiveswapcalcmedian)
 showlinklength(sandberg_solution_network_median, ax)
 
 
@@ -109,7 +118,7 @@ ax.set_title("fixed defensive swapping")
 ax.hist([n[0] for n in sandberg_solution_network_minus.nodes()], 100)
 
 ax = axes[1, 1]
-ax.set_title("defensive median swapping")
-ax.hist([n[0] for n in sandberg_solution_network_median.nodes()], 100)
+ax.set_title("defensive median4 swapping")
+ax.hist([n[0] for n in sandberg_solution_network_median4.nodes()], 100)
 
 show()
