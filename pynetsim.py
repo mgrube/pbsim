@@ -332,13 +332,15 @@ def defensiveswapcalcmedian4(graph, node, attackers, dist):
         neighbordistances = list()
         for n in graph.neighbors(node):
             neighbordistances.append(distance(node, n))
+        # compare the distance for best random node
         _dist = randdistnodes[0][0] - numpy.median(neighbordistances)
         # if the difference between the mean distance to my neighbors
         # and the closest found route to a random node is larger than dist,
         # take the random location.
         if _dist >= dist/2: # divide by 2 because we did 4 checks
             print "Calculated distance relation", _dist, "is larger than dist", dist/2
-            return randdistnodes[-1][1] # switch to worst node
+            # switch to the worst node to fill the most problematic part in the keyspace
+            return randdistnodes[-1][1]
         else:
             return None
 
