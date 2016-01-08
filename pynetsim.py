@@ -317,6 +317,34 @@ def defensiveswapcalcmedian(graph, node, attackers, dist):
             return None
 
         
+#Double median random test
+def defensiveswapcalcmedian2(graph, node, attackers, dist):
+    if node not in attackers:
+        randdistnodes = []
+        for i in range(2):
+            randomloc = float(random.randint(0, 999999999))/1000000000
+            randnode = (randomloc, )
+            closestnode = closestnodequery(graph, node, randnode)
+            print "Randomly chosen location: " + str(randnode)
+            print "Closest found node: " + str(closestnode)
+            randdistnodes.append((distance(randnode, closestnode), randnode))
+        randdistnodes.sort()
+        neighbordistances = list()
+        for n in graph.neighbors(node):
+            neighbordistances.append(distance(node, n))
+        # compare the distance for best random node
+        _dist = randdistnodes[0][0] - numpy.median(neighbordistances)
+        # if the difference between the mean distance to my neighbors
+        # and the closest found route to a random node is larger than dist,
+        # take the random location.
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
+            # switch to the worst node to fill the most problematic part in the keyspace
+            return randdistnodes[-1][1]
+        else:
+            return None
+
+        
 #Quadruple median random test
 def defensiveswapcalcmedian4(graph, node, attackers, dist):
     if node not in attackers:
@@ -337,8 +365,8 @@ def defensiveswapcalcmedian4(graph, node, attackers, dist):
         # if the difference between the mean distance to my neighbors
         # and the closest found route to a random node is larger than dist,
         # take the random location.
-        if _dist >= dist/2: # divide by 2 because we did 4 checks
-            print "Calculated distance relation", _dist, "is larger than dist", dist/2
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
             # switch to the worst node to fill the most problematic part in the keyspace
             return randdistnodes[-1][1]
         else:

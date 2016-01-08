@@ -10,10 +10,14 @@ from networkx import *
 from pylab import *
 from DataStore import DataStore
 
-networksize = 1000
+networksize = 500
 
 #: mean plus two sigma probability of the distance to a random node when routing through a random network with 5 peers per node
 m2s = .037
+#: rough median plus twosigma deviation for two tries (via bruteforcemindist.py)
+medtwosigma2 = 0.02
+#: rough median plus twosigma deviation for four tries (via bruteforcemindist.py)
+medtwosigma4 = 0.0125
 
 small_world_network = navigable_small_world_graph(networksize, 4, 2, 1, 1).to_undirected()
 
@@ -36,6 +40,7 @@ attacked_network = random_network.copy()
 sandberg_solution_network = random_network.copy()
 sandberg_solution_network_minus = random_network.copy()
 sandberg_solution_network_median = random_network.copy()
+sandberg_solution_network_median2 = random_network.copy()
 sandberg_solution_network_median4 = random_network.copy()
 
 
@@ -57,7 +62,6 @@ def showlinklength(net, ax):
     # ax.set_yscale('log')
     ax.set_xscale('log')
     ax.legend(loc='upper left')
-    # show()
 
 ax = axes[0, 0]
 ax.set_title("Clean Swapping Simulation")
@@ -84,15 +88,15 @@ ax.set_title("Attacked, sandberg abs(route) - mean")
 sandbergsolution(sandberg_solution_network_minus, attackers, m2s, swapcalcfun=defensiveswapcalcabsminusmean)
 showlinklength(sandberg_solution_network_minus, ax)
 
+ax = axes[2, 0]
+ax.set_title("Attacked, sandberg abs(route) - median2")
+sandbergsolution(sandberg_solution_network_median2, attackers, medtwosigma2, swapcalcfun=defensiveswapcalcmedian2)
+showlinklength(sandberg_solution_network_median2, ax)
+
 ax = axes[2, 1]
 ax.set_title("Attacked, sandberg abs(route) - median4")
-sandbergsolution(sandberg_solution_network_median4, attackers, m2s, swapcalcfun=defensiveswapcalcmedian4)
+sandbergsolution(sandberg_solution_network_median4, attackers, medtwosigma4, swapcalcfun=defensiveswapcalcmedian4)
 showlinklength(sandberg_solution_network_median4, ax)
-
-ax = axes[2, 0]
-ax.set_title("Attacked, sandberg abs(route) - median")
-sandbergsolution(sandberg_solution_network_median, attackers, m2s, swapcalcfun=defensiveswapcalcmedian)
-showlinklength(sandberg_solution_network_median, ax)
 
 
 show()
@@ -105,17 +109,25 @@ axes[1, 0].set_xlabel('node positions')
 axes[1, 1].set_xlabel('node positions')
 
 
-ax = axes[0, 0]
-ax.set_title("Clean swapping network")
-ax.hist([n[0] for n in clean_swap_network.nodes()], 100)
+# ax = axes[0, 0]
+# ax.set_title("Clean swapping network")
+# ax.hist([n[0] for n in clean_swap_network.nodes()], 100)
 
-ax = axes[1, 0]
+ax = axes[0, 0]
 ax.set_title("attacked network")
 ax.hist([n[0] for n in attacked_network.nodes()], 100)
 
+# ax = axes[0, 1]
+# ax.set_title("fixed defensive swapping")
+# ax.hist([n[0] for n in sandberg_solution_network_minus.nodes()], 100)
+
+ax = axes[1, 0]
+ax.set_title("defensive median2 swapping")
+ax.hist([n[0] for n in sandberg_solution_network_median2.nodes()], 100)
+
 ax = axes[0, 1]
-ax.set_title("fixed defensive swapping")
-ax.hist([n[0] for n in sandberg_solution_network_minus.nodes()], 100)
+ax.set_title("defensive median swapping")
+ax.hist([n[0] for n in sandberg_solution_network_median.nodes()], 100)
 
 ax = axes[1, 1]
 ax.set_title("defensive median4 swapping")

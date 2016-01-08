@@ -44,7 +44,7 @@ def trial(npeers, ntries, nodes=None):
 
 npeers = 6
 size = 100
-nodes = pl.random_sample(size)
+nodes = None # pl.random_sample(size)
 samples_per_try = 500
 maxtries = 100
 tries = []
@@ -56,8 +56,10 @@ for ntries in range(int(math.log(maxtries, 2))):
         tries.append(2**ntries)
         t.append(trial(npeers, int(2**ntries), nodes=nodes))
     best_by_tries.extend(t)
-    twostd_per_tries[2**ntries] = pl.mean(t) + 2 * pl.std(t) 
+    twostd_per_tries[2**ntries] = t
 pl.plot(tries, best_by_tries, "+")
-pl.plot(twostd_per_tries.keys(), twostd_per_tries.values(), "o")
+pl.plot(twostd_per_tries.keys(), [2 * pl.std(t) for t in twostd_per_tries.values()], "o")
+print sorted(zip(twostd_per_tries.keys(), [2 * pl.std(t) for t in twostd_per_tries.values()], [pl.median(t) + 2 * pl.std(t) for t in twostd_per_tries.values()]))
+pl.plot(twostd_per_tries.keys(), [pl.median(t) for t in twostd_per_tries.values()], "o")
 pl.xscale('log')
 pl.show()
