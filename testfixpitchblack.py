@@ -48,9 +48,9 @@ f, axes = subplots(3, 2, sharex=True, sharey=True)
 # link lengths
 axes[2, 0].set_xlabel('max link length of the node')
 axes[2, 1].set_xlabel('max link length of the node')
-axes[0, 0].set_ylabel('number of nodes with this link length or less')
+# axes[0, 0].set_ylabel('number of nodes with this link length or less')
 axes[1, 0].set_ylabel('number of nodes with this link length or less')
-axes[2, 0].set_ylabel('number of nodes with this link length or less')
+# axes[2, 0].set_ylabel('number of nodes with this link length or less')
 
 def showlinklength(net, ax):
     linklengths = [max([abs((e[0][0] - e[1][0])) for e in net.edges(n)]) for n in net.nodes()]
