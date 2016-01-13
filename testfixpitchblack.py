@@ -79,22 +79,22 @@ attacksimulation(attacked_network, attackers) # We're using 2 nodes, each with 4
 showlinklength(attacked_network, ax)
 
 ax = axes[0, 1]
-ax.set_title("Attacked, sandberg abs(route - mean)")
+ax.set_title("Sandberg abs(route - mean)")
 sandbergsolution(sandberg_solution_network, attackers, m2s)
 showlinklength(sandberg_solution_network, ax)
 
 ax = axes[1, 1]
-ax.set_title("Attacked, sandberg abs(route) - mean")
+ax.set_title("Sandberg abs(route) - mean")
 sandbergsolution(sandberg_solution_network_minus, attackers, m2s, swapcalcfun=defensiveswapcalcabsminusmean)
 showlinklength(sandberg_solution_network_minus, ax)
 
 ax = axes[2, 0]
-ax.set_title("Attacked, sandberg abs(route) - median2")
+ax.set_title("Sandberg abs(route) - median2")
 sandbergsolution(sandberg_solution_network_median2, attackers, medtwosigma2, swapcalcfun=defensiveswapcalcmedian2)
 showlinklength(sandberg_solution_network_median2, ax)
 
 ax = axes[2, 1]
-ax.set_title("Attacked, sandberg abs(route) - median")
+ax.set_title("Sandberg abs(route) - median")
 sandbergsolution(sandberg_solution_network_median, attackers, medtwosigma4, swapcalcfun=defensiveswapcalcmedian4)
 showlinklength(sandberg_solution_network_median, ax)
 
