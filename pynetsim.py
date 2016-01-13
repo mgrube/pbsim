@@ -219,14 +219,14 @@ def swap_calc(graph, node1, node2):
 
 #Assign a set of malicious nodes
 def pickmalnodes(graph, attackers, numattackers):
-	i = 0
-	while i < numattackers:
+	for i in range(numattackers):
         	maltuple = pickmalnode(graph)
         	attackers.append((maltuple[0], maltuple[1]))
         	attackers.append((maltuple[0], round((maltuple[1] + .5) % 1, 5)))
-        	attackers.append((maltuple[0], round((maltuple[1] + .25) % 1, 5)))
-        	attackers.append((maltuple[0], round((maltuple[1] + .75) % 1, 5)))
-		i += 1
+                # only 2 locations per attacker to make this easier to see in small networks
+        	# attackers.append((maltuple[0], round((maltuple[1] + .25) % 1, 5)))
+        	# attackers.append((maltuple[0], round((maltuple[1] + .75) % 1, 5)))
+
 #Defensively swaps the whole graph
 def defensiveswapiteration(g, attackers, distance, swapcalcfun):
     for n in g.nodes(data=True):

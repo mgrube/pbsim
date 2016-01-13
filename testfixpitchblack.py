@@ -10,7 +10,7 @@ from networkx import *
 from pylab import *
 from DataStore import DataStore
 
-networksize = 500
+networksize = 1000
 
 #: mean plus two sigma probability of the distance to a random node when routing through a random network with 5 peers per node
 m2s = .037
@@ -94,12 +94,12 @@ sandbergsolution(sandberg_solution_network_median2, attackers, medtwosigma2, swa
 showlinklength(sandberg_solution_network_median2, ax)
 
 ax = axes[2, 1]
-ax.set_title("Attacked, sandberg abs(route) - median4")
-sandbergsolution(sandberg_solution_network_median4, attackers, medtwosigma4, swapcalcfun=defensiveswapcalcmedian4)
-showlinklength(sandberg_solution_network_median4, ax)
+ax.set_title("Attacked, sandberg abs(route) - median")
+sandbergsolution(sandberg_solution_network_median, attackers, medtwosigma4, swapcalcfun=defensiveswapcalcmedian4)
+showlinklength(sandberg_solution_network_median, ax)
 
 
-show()
+savefig("{}-mean-median-median2-peerdist.png".format(networksize), dpi=300, bbox_inches='tight', transparent=True)
 
 # histograms
 f, axes = subplots(2, 2, sharex=True, sharey=True)
@@ -130,7 +130,7 @@ ax.set_title("defensive median swapping")
 ax.hist([n[0] for n in sandberg_solution_network_median.nodes()], 100)
 
 ax = axes[1, 1]
-ax.set_title("defensive median4 swapping")
-ax.hist([n[0] for n in sandberg_solution_network_median4.nodes()], 100)
+ax.set_title("defensive mean swapping")
+ax.hist([n[0] for n in sandberg_solution_network_minus.nodes()], 100)
 
-show()
+savefig("{}-mean-median-median2-lochist.png".format(networksize), dpi=300, bbox_inches='tight', transparent=True)
