@@ -103,7 +103,7 @@ sandbergsolution(sandberg_solution_network_median2, attackers, medtwosigma2, swa
 showlinklength(sandberg_solution_network_median2, ax)
 
 
-savefig("{}-mean-median-median2-peerdist.png".format(networksize), dpi=300, bbox_inches='tight', transparent=True)
+savefig("{}-fix-pitch-black-mean-median-median2-peerdist.png".format(networksize), dpi=300, bbox_inches='tight', transparent=True)
 
 # histograms
 f, axes = subplots(2, 2, sharex=True, sharey=True)
@@ -135,4 +135,4 @@ ax = axes[1, 0]
 ax.set_title("defensive mean2 swapping")
 ax.hist([n[0] for n in sandberg_solution_network_mean2.nodes()], 100)
 
-savefig("{}-mean-median-median2-lochist.png".format(networksize), dpi=300, bbox_inches='tight', transparent=True)
+savefig("{}-fix-pitch-black-mean-median-median2-lochist.png".format(networksize), dpi=300, bbox_inches='tight', transparent=True)
