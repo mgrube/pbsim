@@ -11,7 +11,7 @@ from networkx import *
 from pylab import *
 from DataStore import DataStore
 
-networksize = 400
+networksize = 2000
 
 #: mean plus two sigma probability of the distance to a random node when routing through a random network with 5 peers per node
 m2s = .037
