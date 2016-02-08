@@ -43,10 +43,10 @@ def trial(npeers, ntries, nodes=None):
   return best
 
 npeers = 6
-size = 100
+size = 1000
 nodes = None # pl.random_sample(size)
-samples_per_try = 500
-maxtries = 100
+samples_per_try = 5000
+maxtries = 4
 tries = []
 best_by_tries = []
 twostd_per_tries = {}
@@ -58,8 +58,10 @@ for ntries in range(int(math.log(maxtries, 2))):
     best_by_tries.extend(t)
     twostd_per_tries[2**ntries] = t
 pl.plot(tries, best_by_tries, "+")
-pl.plot(twostd_per_tries.keys(), [2 * pl.std(t) for t in twostd_per_tries.values()], "o")
-print sorted(zip(twostd_per_tries.keys(), [2 * pl.std(t) for t in twostd_per_tries.values()], [pl.median(t) + 2 * pl.std(t) for t in twostd_per_tries.values()]))
-pl.plot(twostd_per_tries.keys(), [pl.median(t) for t in twostd_per_tries.values()], "o")
+print sorted(zip(twostd_per_tries.keys(), [2 * pl.std(t) for t in twostd_per_tries.values()], [pl.median(t) + 2 * pl.std(t) for t in twostd_per_tries.values()], [pl.mean(t) + 2 * pl.std(t) for t in twostd_per_tries.values()]))
+pl.plot(twostd_per_tries.keys(), [2 * pl.std(t) for t in twostd_per_tries.values()], "o", label="2s")
+pl.plot(twostd_per_tries.keys(), [pl.median(t) for t in twostd_per_tries.values()], "h", label="median")
+pl.plot(twostd_per_tries.keys(), [pl.mean(t) for t in twostd_per_tries.values()], "H", label="mean")
 pl.xscale('log')
+pl.legend()
 pl.show()
