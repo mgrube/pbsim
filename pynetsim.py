@@ -4,7 +4,7 @@ import networkx
 import numpy
 from DataStore import DataStore
 
-number_of_swapping_tries = 1000
+number_of_swapping_tries = 5000
 
 #This function takes a graph, a set of attackers as tuples and a 
 #distance each node should be away from the others. 
