@@ -88,17 +88,17 @@ sandbergsolution(sandberg_solution_network_minus, attackers, m2s, swapcalcfun=de
 showlinklength(sandberg_solution_network_minus, ax)
 
 ax = axes[1, 1]
-ax.set_title("Attacked, sandberg abs(route) - median")
+ax.set_title("Sandberg abs(route) - median")
 sandbergsolution(sandberg_solution_network_median, attackers, m2s, swapcalcfun=defensiveswapcalcmedian)
 showlinklength(sandberg_solution_network_median, ax)
 
 ax = axes[2, 0]
-ax.set_title("Attacked, sandberg abs(route) - mean2")
+ax.set_title("Sandberg abs(route) - mean2")
 sandbergsolution(sandberg_solution_network_mean2, attackers, m2s2, swapcalcfun=defensiveswapcalcabsminusmean2)
 showlinklength(sandberg_solution_network_mean2, ax)
 
 ax = axes[2, 1]
-ax.set_title("Attacked, sandberg abs(route) - median2")
+ax.set_title("Sandberg abs(route) - median2")
 sandbergsolution(sandberg_solution_network_median2, attackers, medtwosigma2, swapcalcfun=defensiveswapcalcmedian2)
 showlinklength(sandberg_solution_network_median2, ax)
 
