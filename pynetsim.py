@@ -4,15 +4,19 @@ import networkx
 import numpy
 from DataStore import DataStore
 
+number_of_swapping_tries = 5000
+
 #This function takes a graph, a set of attackers as tuples and a 
 #distance each node should be away from the others. 
-def sandbergsolution(graph, attackers, distance):
+def sandbergsolution(graph, attackers, distance, swapcalcfun=None):
+    if swapcalcfun is None:
+        swapcalcfun = defensiveswapcalc
     i = 0
-    while i < 2000:
+    while i < number_of_swapping_tries:
         newattackers = list() 
         for a in attackers:
             newattackers.append(pbswap(graph, a, attackers))
-        defensiveswapiteration(graph, attackers, distance)
+        defensiveswapiteration(graph, attackers, distance, swapcalcfun)
         attackers = newattackers
         i += 1
 
@@ -40,7 +44,7 @@ def initialdatainsert(g):
 #and carries out the Pitch Black attack.
 def attacksimulation(graph, attackers):
     i = 0
-    while i < 2000:
+    while i < number_of_swapping_tries:
         newattackers = list() 
         for a in attackers:
             newattackers.append(pbswap(graph, a, attackers))
@@ -175,7 +179,7 @@ def randomize(graph):
         graph.remove_node(n)
 
 #This is important. This is Oskar Sandberg's original swapping calculation.
-#This needs to be run 2000N times to be effective.
+#This needs to be run number_of_swaps * N times to be effective.
 def swap_calc(graph, node1, node2):
     d1 = float()
     d2 = float()
@@ -217,21 +221,21 @@ def swap_calc(graph, node1, node2):
 
 #Assign a set of malicious nodes
 def pickmalnodes(graph, attackers, numattackers):
-	i = 0
-	while i < numattackers:
+	for i in range(numattackers):
         	maltuple = pickmalnode(graph)
         	attackers.append((maltuple[0], maltuple[1]))
         	attackers.append((maltuple[0], round((maltuple[1] + .5) % 1, 5)))
-        	attackers.append((maltuple[0], round((maltuple[1] + .25) % 1, 5)))
-        	attackers.append((maltuple[0], round((maltuple[1] + .75) % 1, 5)))
-		i += 1
+                # only 2 locations per attacker to make this easier to see in small networks
+        	# attackers.append((maltuple[0], round((maltuple[1] + .25) % 1, 5)))
+        	# attackers.append((maltuple[0], round((maltuple[1] + .75) % 1, 5)))
+
 #Defensively swaps the whole graph
-def defensiveswapiteration(g, attackers, distance):
-    for n in g.nodes():
+def defensiveswapiteration(g, attackers, distance, swapcalcfun):
+    for n in g.nodes(data=True):
         node1 = n
-        node2 = randomwalk(n, 6, g)
-        newloc = defensiveswapcalc(g, n, attackers, distance)
-        if newloc == None:
+        node2 = randomwalk(n[0], 6, g)
+        newloc = swapcalcfun(g, n[0], attackers, distance)
+        if newloc is None:
             print "Didn't need to change. Doing Swap Calc."
             swap_calc(g, node1[0], node2)
         else:
@@ -239,7 +243,7 @@ def defensiveswapiteration(g, attackers, distance):
                 print "Attack node will not defensively swap."
             else:
                 changenodeloc(g, node1[1]['id'], newloc)
-                print "Replaced " + str(n) + " with " + str(newloc)
+                print "Replaced " + str(n[0]) + " with " + str(newloc[0])
 
 #Use Sandberg's Swapping algorithm once for the whole graph
 def swapiteration(g):
@@ -257,14 +261,148 @@ def defensiveswapcalc(graph, node, attackers, dist):
         closestnode = closestnodequery(graph, node, randnode)
         print "Randomly chosen location: " + str(randnode)
         print "Closest found node: " + str(closestnode)
-        neighborlocations = list()
+        neighbordistances = list()
         for n in graph.neighbors(node):
-            neighborlocations.append(distance(node, n))
-        if abs(distance(randnode, closestnode)-numpy.mean(neighborlocations)) >= dist:
+            neighbordistances.append(distance(node, n))
+        _dist = abs(distance(randnode, closestnode) - numpy.mean(neighbordistances))
+        # if the difference between the mean distance to my neighbors
+        # and the closest found route to a random node is larger than dist,
+        # take the random location.
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
             return randnode
         else:
             return None
 
+
+#Use a swapping technique that takes pitch black into account
+def defensiveswapcalcabsminusmean(graph, node, attackers, dist):
+    if node not in attackers:
+        randomloc = float(random.randint(0, 999999999))/1000000000
+        randnode = (randomloc, )
+        closestnode = closestnodequery(graph, node, randnode)
+        print "Randomly chosen location: " + str(randnode)
+        print "Closest found node: " + str(closestnode)
+        neighbordistances = list()
+        for n in graph.neighbors(node):
+            neighbordistances.append(distance(node, n))
+        _dist = distance(randnode, closestnode) - numpy.mean(neighbordistances)
+        # if the difference between the mean distance to my neighbors
+        # and the closest found route to a random node is larger than dist,
+        # take the random location.
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
+            return randnode
+        else:
+            return None
+
+
+# Do two routing tries.
+def defensiveswapcalcabsminusmean2(graph, node, attackers, dist):
+    if node not in attackers:
+        randdistnodes = []
+        for i in range(2):
+            randomloc = float(random.randint(0, 999999999))/1000000000
+            randnode = (randomloc, )
+            closestnode = closestnodequery(graph, node, randnode)
+            print "Randomly chosen location: " + str(randnode)
+            print "Closest found node: " + str(closestnode)
+            randdistnodes.append((distance(randnode, closestnode), randnode))
+        randdistnodes.sort()
+        neighbordistances = list()
+        for n in graph.neighbors(node):
+            neighbordistances.append(distance(node, n))
+        # compare the distance for best random node
+        _dist = randdistnodes[0][0] - numpy.mean(neighbordistances)
+        # if the difference between the mean distance to my neighbors
+        # and the closest found route to a random node is larger than dist,
+        # take the random location.
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
+            # switch to the worst node to fill the most problematic part in the keyspace
+            return randdistnodes[-1][1]
+        else:
+            return None
+
+
+#Simpler swapping technique that takes pitch black into account
+def defensiveswapcalcmedian(graph, node, attackers, dist):
+    if node not in attackers:
+        randomloc = float(random.randint(0, 999999999))/1000000000
+        randnode = (randomloc, )
+        closestnode = closestnodequery(graph, node, randnode)
+        print "Randomly chosen location: " + str(randnode)
+        print "Closest found node: " + str(closestnode)
+        neighbordistances = list()
+        for n in graph.neighbors(node):
+            neighbordistances.append(distance(node, n))
+        _dist = abs(distance(randnode, closestnode)) - numpy.median(neighbordistances)
+        # if the difference between the mean distance to my neighbors
+        # and the closest found route to a random node is larger than dist,
+        # take the random location.
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
+            return randnode
+        else:
+            return None
+
+        
+#Double median random test
+def defensiveswapcalcmedian2(graph, node, attackers, dist):
+    if node not in attackers:
+        randdistnodes = []
+        for i in range(2):
+            randomloc = float(random.randint(0, 999999999))/1000000000
+            randnode = (randomloc, )
+            closestnode = closestnodequery(graph, node, randnode)
+            print "Randomly chosen location: " + str(randnode)
+            print "Closest found node: " + str(closestnode)
+            randdistnodes.append((distance(randnode, closestnode), randnode))
+        randdistnodes.sort()
+        neighbordistances = list()
+        for n in graph.neighbors(node):
+            neighbordistances.append(distance(node, n))
+        # compare the distance for best random node
+        _dist = randdistnodes[0][0] - numpy.median(neighbordistances)
+        # if the difference between the mean distance to my neighbors
+        # and the closest found route to a random node is larger than dist,
+        # take the random location.
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
+            # switch to the worst node to fill the most problematic part in the keyspace
+            return randdistnodes[-1][1]
+        else:
+            return None
+
+        
+#Quadruple median random test
+def defensiveswapcalcmedian4(graph, node, attackers, dist):
+    if node not in attackers:
+        randdistnodes = []
+        for i in range(4):
+            randomloc = float(random.randint(0, 999999999))/1000000000
+            randnode = (randomloc, )
+            closestnode = closestnodequery(graph, node, randnode)
+            print "Randomly chosen location: " + str(randnode)
+            print "Closest found node: " + str(closestnode)
+            randdistnodes.append((distance(randnode, closestnode), randnode))
+        randdistnodes.sort()
+        neighbordistances = list()
+        for n in graph.neighbors(node):
+            neighbordistances.append(distance(node, n))
+        # compare the distance for best random node
+        _dist = randdistnodes[0][0] - numpy.median(neighbordistances)
+        # if the difference between the mean distance to my neighbors
+        # and the closest found route to a random node is larger than dist,
+        # take the random location.
+        if _dist >= dist:
+            print "Calculated distance relation", _dist, "is larger than dist", dist
+            # switch to the worst node to fill the most problematic part in the keyspace
+            return randdistnodes[-1][1]
+        else:
+            return None
+
+        
 #Return the closest node relative to a specific location
 def closestnodequery(graph, startnode, desired):
     HTL = int(math.ceil(math.pow(math.log(len(graph.nodes()), 10), 2)))
@@ -285,7 +423,7 @@ def closestnodequery(graph, startnode, desired):
             closestnode = n
     return closestnode
 
-#Return the closest neighor relative to a certain location.
+#Return the closest neighbor relative to a certain location.
 #The previous node is passed to ensure that a node is not 
 #Returned twice when crawling. 
 def closestneighbor(graph, currentnode, desired, previous):
